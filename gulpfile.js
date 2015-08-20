@@ -8,7 +8,7 @@ var babel = require('babelify');
 
 function compile(watch) {
 
-  var bundler = watchify(browserify('./client/js/app.js', {
+  var bundler = watchify(browserify('./client/app/app.js', {
       debug: true
     })
     .transform(babel));
@@ -25,7 +25,7 @@ function compile(watch) {
         loadMaps: true
       }))
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./dist'));
+      .pipe(gulp.dest('./client/build'));
   }
 
   if (watch) {
@@ -45,8 +45,9 @@ function watch() {
 gulp.task('build', function () {
   return compile();
 });
+
 gulp.task('watch', function () {
   return watch();
 });
 
-gulp.task('default', ['build', 'watch']);
+gulp.task('default', ['watch']);
