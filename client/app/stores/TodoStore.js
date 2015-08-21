@@ -12,7 +12,7 @@ class TodoStore extends EventEmitter {
       'toto': {
         'id': 'toto',
         'complete' : false,
-        'text' : 'todo1'
+        'text' : 'todo1 change'
       }
     };
 
@@ -48,7 +48,7 @@ class TodoStore extends EventEmitter {
   }
 
   create(text) {
-    
+
     var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
 
     this.todos[id] = {

@@ -1,53 +1,71 @@
 var gulp = require('gulp');
-var sourcemaps = require('gulp-sourcemaps');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
-var browserify = require('browserify');
-var watchify = require('watchify');
-var babel = require('babelify');
-
-function compile(watch) {
-
-  var bundler = watchify(browserify('./client/app/app.js', {
-      debug: true
-    })
-    .transform(babel));
-
-  function rebundle() {
-    bundler.bundle()
-      .on('error', function (err) {
-        console.error(err);
-        this.emit('end');
-      })
-      .pipe(source('build.js'))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({
-        loadMaps: true
-      }))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./client/build'));
-  }
-
-  if (watch) {
-    bundler.on('update', function () {
-      console.log('-> bundling...');
-      rebundle();
-    });
-  }
-
-  rebundle();
-}
-
-function watch() {
-  return compile(true);
-};
-
-gulp.task('build', function () {
-  return compile();
-});
+var template = require('gulp-template');
+var watch = require('gulp-watch');
+var gulpWebpack = require('webpack-stream');
+var webpack = require('webpack');
+var browserSync = require('browser-sync');
+var WebpackDevServer = require('webpack-dev-server');
+var webpackConfig = require('./webpack/webpackConfig');
+var gutil = require('gulp-util');
 
 gulp.task('watch', function () {
-  return watch();
+
+  watch('./client/index.html', function () {
+    gulp.start('index');
+  });
+
+  // watch(config.get('paths.client.src.scripts.glob'), function () {
+  //   gulp.start(['lint', 'bundle']);
+  // });
+  //
+  // watch(config.get('paths.client.src.styles.glob'), function () {
+  //   gulp.start('styles');
+  // });
+
 });
 
-gulp.task('default', ['watch']);
+gulp
+  .task("webpack-dev-server", function (callback) {
+
+    new WebpackDevServer(webpack(webpackConfig), {
+      publicPath: webpackConfig.output.publicPath,
+      hot: true,
+      historyApiFallback: true
+    }).listen(3000, 'localhost', function (err, result) {
+      if (err) {
+        console.log(err);
+      }
+
+      console.log('Listening at localhost:3000');
+    });
+
+  });
+
+// Copy index.html into the build folder
+gulp
+  .task('index', function () {
+    return gulp.src('./client/index.html')
+      .pipe(template({
+        script_path: '.'
+      }))
+      .pipe(gulp.dest('./client/build'));
+  });
+
+
+// Run Webpack and concat all JS script into the build folder
+gulp
+  .task('build-webpack', function () {
+
+
+    return gulp.src(webpackConfig.entry[2])
+      .pipe(gulpWebpack(webpackConfig))
+      .pipe(gulp.dest(webpackConfig.output.path));
+
+  });
+
+
+gulp
+  .task('build', ['index', 'build-webpack']);
+
+gulp
+  .task('default', ['build', 'webpack-dev-server']);
