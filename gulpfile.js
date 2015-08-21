@@ -1,29 +1,32 @@
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var template = require('gulp-template');
 var watch = require('gulp-watch');
-var gulpWebpack = require('webpack-stream');
+
 var webpack = require('webpack');
-var browserSync = require('browser-sync');
+var gulpWebpack = require('webpack-stream');
+
 var WebpackDevServer = require('webpack-dev-server');
+var constants = require('./webpack/const.dev');
 var webpackConfig = require('./webpack/webpackConfig');
-var gutil = require('gulp-util');
 
-gulp.task('watch', function () {
 
+gulp
+.task('watch', function () {
   watch('./client/index.html', function () {
     gulp.start('index');
   });
-
 });
 
+
 gulp
-  .task("webpack-dev-server", function (callback) {
+  .task('webpack-dev-server', function (callback) {
 
     new WebpackDevServer(webpack(webpackConfig), {
-      publicPath: webpackConfig.output.publicPath,
+      publicPath: constants.OUTPUT_PUBLIC_PATH,
       hot: true,
       historyApiFallback: true
-    }).listen(3000, 'localhost', function (err, result) {
+    }).listen(constants.PORT, constants.BASE_URL, function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -42,7 +45,7 @@ gulp
         script_path: '.',
         css_path: '.'
       }))
-      .pipe(gulp.dest('./client/build'));
+      .pipe(gulp.dest(constants.DEST_FOLDER_PATH));
 
   });
 
@@ -51,9 +54,10 @@ gulp
 gulp
   .task('build-webpack', function () {
 
-    return gulp.src(webpackConfig.entry[2])
+    return gulp
+      .src(constants.ENTRY_FILE_PATH)
       .pipe(gulpWebpack(webpackConfig))
-      .pipe(gulp.dest(webpackConfig.output.path));
+      .pipe(gulp.dest(constants.DEST_FOLDER_PATH));
 
   });
 

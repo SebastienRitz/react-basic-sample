@@ -1,12 +1,12 @@
-var path = require('path');
-var node_modules_dir = path.resolve(__dirname, '../node_modules');
 var webpack = require('webpack');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var constants = require('./const.dev');
+var sprintf = require('sprintf');
 
 var sassLoaders = [
   "css-loader",
   "autoprefixer-loader?browsers=last 2 version",
-  "sass-loader?indentedSyntax=sass&includePaths[]=" + path.resolve(__dirname, "../client"),
+  "sass-loader?indentedSyntax=sass&includePaths[]=" + constants.CLIENT_FOLDER_PATH,
 ];
 
 var config = {
@@ -15,34 +15,34 @@ var config = {
   watch: true,
   entry: [
     // WebpackDevServer host and port
-    'webpack-dev-server/client?http://localhost:3000',
+    sprintf('webpack-dev-server/client?http://%s:%s', constants.BASE_URL, constants.PORT),
     'webpack/hot/only-dev-server',
-    path.resolve(__dirname, '../', 'client/app/app.js')
+    constants.ENTRY_FILE_PATH
   ],
   output: {
-    path: path.resolve(__dirname, '../', 'client/build'),
-    filename: 'bundle.js',
-    publicPath: '/static/'
+    path: constants.DEST_FOLDER_PATH,
+    filename: constants.SINGLE_JS_FILENAME,
+    publicPath: constants.OUTPUT_PUBLIC_PATH
   },
   plugins: [
-    new ExtractTextPlugin('style.css'),
+    new ExtractTextPlugin(constants.SINGLE_CSS_FILENAME),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin()
   ],
   resolve: {
     extensions: ['', '.js', '.sass'],
-    modulesDirectories: ['src', 'node_modules']
+    modulesDirectories: ['client', 'node_modules']
   },
   module: {
     loaders: [{
       test: /\.js$/,
-      exclude: [node_modules_dir],
+      exclude: [constants.NODE_MODULES_DIR],
       // Config is read right to left so first babelize
       loaders: ['react-hot', 'babel'],
-      include: path.join(__dirname, '../client/app')
+      include: constants.CLIENT_APP_DIR
     }, {
       test: /\.sass$/,
-      loader: ExtractTextPlugin.extract("style-loader", sassLoaders.join("!")),
+      loader: ExtractTextPlugin.extract('style-loader', sassLoaders.join('!')),
     }]
   }
 };
