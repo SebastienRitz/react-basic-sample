@@ -14,14 +14,6 @@ gulp.task('watch', function () {
     gulp.start('index');
   });
 
-  // watch(config.get('paths.client.src.scripts.glob'), function () {
-  //   gulp.start(['lint', 'bundle']);
-  // });
-  //
-  // watch(config.get('paths.client.src.styles.glob'), function () {
-  //   gulp.start('styles');
-  // });
-
 });
 
 gulp
@@ -44,18 +36,20 @@ gulp
 // Copy index.html into the build folder
 gulp
   .task('index', function () {
+
     return gulp.src('./client/index.html')
       .pipe(template({
-        script_path: '.'
+        script_path: '.',
+        css_path: '.'
       }))
       .pipe(gulp.dest('./client/build'));
+
   });
 
 
 // Run Webpack and concat all JS script into the build folder
 gulp
   .task('build-webpack', function () {
-
 
     return gulp.src(webpackConfig.entry[2])
       .pipe(gulpWebpack(webpackConfig))
@@ -68,4 +62,4 @@ gulp
   .task('build', ['index', 'build-webpack']);
 
 gulp
-  .task('default', ['build', 'webpack-dev-server']);
+  .task('default', ['build', 'watch', 'webpack-dev-server']);

@@ -2,6 +2,12 @@ import React from 'react';
 import TodoItem from './TodoItem.react'
 import TodoStore from '../stores/TodoStore';
 
+import Header from './Header.react';
+import Footer from './Footer.react';
+
+import '../../styles/base';
+import "../../styles/modules/container";
+
 export default class TodoApp extends React.Component {
 
   constructor (props) {
@@ -31,9 +37,15 @@ export default class TodoApp extends React.Component {
     }
 
     return (
-      <ul id="todo-list">
-        {htmlTodos}
-      </ul>
+      <div className="container">
+      <Header />
+      <div>
+        <ul id="todo-list">
+          {htmlTodos}
+        </ul>
+      </div>
+      <Footer />
+    </div>
     );
 
   }

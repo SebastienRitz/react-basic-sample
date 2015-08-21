@@ -1,6 +1,13 @@
 var path = require('path');
 var node_modules_dir = path.resolve(__dirname, '../node_modules');
 var webpack = require('webpack');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+var sassLoaders = [
+  "css-loader",
+  "autoprefixer-loader?browsers=last 2 version",
+  "sass-loader?indentedSyntax=sass&includePaths[]=" + path.resolve(__dirname, "../client"),
+];
 
 var config = {
   devtool: 'eval',
@@ -18,11 +25,13 @@ var config = {
     publicPath: '/static/'
   },
   plugins: [
+    new ExtractTextPlugin('style.css'),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin()
   ],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['', '.js', '.sass'],
+    modulesDirectories: ['src', 'node_modules']
   },
   module: {
     loaders: [{
@@ -31,6 +40,9 @@ var config = {
       // Config is read right to left so first babelize
       loaders: ['react-hot', 'babel'],
       include: path.join(__dirname, '../client/app')
+    }, {
+      test: /\.sass$/,
+      loader: ExtractTextPlugin.extract("style-loader", sassLoaders.join("!")),
     }]
   }
 };
